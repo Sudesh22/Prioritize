@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>865</width>
+    <height>751</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <widget class="QGraphicsView" name="graphicsView1">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>17</y>
+      <width>481</width>
+      <height>381</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color: rgba(0, 0, 0, 0);
+border:none;</string>
+    </property>
+   </widget>
+   <widget class="QGraphicsView" name="graphicsView2">
+    <property name="geometry">
+     <rect>
+      <x>350</x>
+      <y>17</y>
+      <width>491</width>
+      <height>381</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color: rgba(0, 0, 0, 0);
+border:none;</string>
+    </property>
+   </widget>
+   <widget class="QGraphicsView" name="graphicsView3">
+    <property name="geometry">
+     <rect>
+      <x>350</x>
+      <y>352</y>
+      <width>491</width>
+      <height>381</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color: rgba(0, 0, 0, 0);
+border:none;</string>
+    </property>
+   </widget>
+   <widget class="QGraphicsView" name="graphicsView4">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>352</y>
+      <width>501</width>
+      <height>381</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color: rgba(0, 0, 0, 0);
+border:none;</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="loading_screen">
+    <property name="geometry">
+     <rect>
+      <x>220</x>
+      <y>167</y>
+      <width>440</width>
+      <height>440</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true"/>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+   </widget>
+   <widget class="QLabel" name="load1">
+    <property name="geometry">
+     <rect>
+      <x>330</x>
+      <y>313</y>
+      <width>161</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">font: 9pt &quot;SansSerif&quot;;
+color: black;
+</string>
+    </property>
+    <property name="text">
+     <string>TextLabel</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="load2">
+    <property name="geometry">
+     <rect>
+      <x>335</x>
+      <y>354</y>
+      <width>161</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">font: 9pt &quot;SansSerif&quot;;
+color: black;</string>
+    </property>
+    <property name="text">
+     <string>TextLabel</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="load3">
+    <property name="geometry">
+     <rect>
+      <x>340</x>
+      <y>396</y>
+      <width>151</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">font: 9pt &quot;SansSerif&quot;;
+color: black;</string>
+    </property>
+    <property name="text">
+     <string>TextLabel</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="load4">
+    <property name="geometry">
+     <rect>
+      <x>340</x>
+      <y>438</y>
+      <width>141</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">font: 9pt &quot;SansSerif&quot;;
+color: black;</string>
+    </property>
+    <property name="text">
+     <string>TextLabel</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="load5">
+    <property name="geometry">
+     <rect>
+      <x>340</x>
+      <y>480</y>
+      <width>171</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">font: 9pt &quot;SansSerif&quot;;
+color: black;</string>
+    </property>
+    <property name="text">
+     <string>TextLabel</string>
+    </property>
+   </widget>
+   <zorder>graphicsView1</zorder>
+   <zorder>graphicsView3</zorder>
+   <zorder>loading_screen</zorder>
+   <zorder>load1</zorder>
+   <zorder>load2</zorder>
+   <zorder>load3</zorder>
+   <zorder>load4</zorder>
+   <zorder>load5</zorder>
+   <zorder>graphicsView2</zorder>
+   <zorder>graphicsView4</zorder>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
