@@ -21,6 +21,6 @@ The modules used for this project were `os` `sys` `sqlite3` `datetime` `time` `g
 </p>
 
 <p align=center>
-  <img src="Resources/Dash.svg">
+  <img src="Resources/dash.svg">
   Dashboard UI
 </p>
