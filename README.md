@@ -12,15 +12,15 @@ The modules used for this project were `os` `sys` `sqlite3` `datetime` `time` `g
 ## Snaps of UI
 <p align=center>
   <img src="Resources/login.svg">
-  Login UI
+  <p align=center>Login UI</p>
 </p>
 
 <p align=center>
   <img src="Resources/task.svg">
-  Task Adding and Editing UI
+  <p align=center>Task Adding and Editing UI</p>
 </p>
 
 <p align=center>
   <img src="Resources/Dash.svg">
-  Dashboard UI
+  <p align=center>Dashboard UI</p>
 </p>
