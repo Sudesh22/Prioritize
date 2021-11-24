@@ -127,23 +127,6 @@ border-top-right-radius: 35px;</string>
      <string/>
     </property>
    </widget>
-   <widget class="QLabel" name="label_3">
-    <property name="geometry">
-     <rect>
-      <x>40</x>
-      <y>710</y>
-      <width>161</width>
-      <height>31</height>
-     </rect>
-    </property>
-    <property name="styleSheet">
-     <string notr="true">font: 9pt &quot;SansSerif&quot;;
-</string>
-    </property>
-    <property name="text">
-     <string>Created by Sudesh</string>
-    </property>
-   </widget>
    <widget class="QPushButton" name="close">
     <property name="geometry">
      <rect>
@@ -437,7 +420,6 @@ QPushButton:focus{outline: 0;}</string>
    <zorder>task_label_2</zorder>
    <zorder>label</zorder>
    <zorder>label_2</zorder>
-   <zorder>label_3</zorder>
    <zorder>close</zorder>
    <zorder>scrollArea</zorder>
    <zorder>new_task</zorder>
