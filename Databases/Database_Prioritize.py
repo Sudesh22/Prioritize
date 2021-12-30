@@ -54,6 +54,14 @@ def delete(name,id):
     c.execute("DELETE from " + name + " WHERE rowid = ?", (id,))
     conn.commit()
 
+def deleteAll(name):
+    conn = sqlite3.connect('Prioritize.db')
+    c = conn.cursor()
+    num = c.execute("SELECT rowid, * FROM " + name).fetchall()
+    for i in range(len(num)+1):
+        c.execute("DELETE from " + name + " WHERE rowid = ?", (i,))
+    conn.commit()
+
 def print_data(name):
     conn = sqlite3.connect('Prioritize.db')
     c = conn.cursor()
@@ -144,7 +152,8 @@ def sort():
 # create_table()
 # delete_table('tasks')
 # add_data('hi', 'jsv x jcbsd ')
-# delete("tasks",6)
+# delete("tasks",12)
+# deleteAll("tasks")
 # print_data("tasks")
 # print_tables()
 # t_n_list()

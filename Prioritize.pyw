@@ -353,32 +353,32 @@ class Window(QMainWindow):
                 load()
 
         def search():
-            self.search_b.setFocus()
-
-        def update_(t_id):
-            print("t_id",t_id)
-            conn = sqlite3.connect(os.path.join(curr_path,'Databases\Prioritize.db'))
-            c = conn.cursor()
-            val = c.execute("SELECT pending FROM tasks WHERE rowid = " + str(t_id)).fetchall()
-            print(val)
-            if val[0][0] == 1:
-                print("1")
-                c.execute("UPDATE tasks SET pending = 0 WHERE rowid = ?", (t_id,))
-                conn.commit()
-                conn.close()
-            conn = sqlite3.connect(os.path.join(curr_path,'Databases\Prioritize.db'))
-            c = conn.cursor()
-            val = c.execute("SELECT pending FROM tasks WHERE rowid = " + str(t_id)).fetchall()
-            print(val[0][0])
-            conn.commit()
-            conn.close()
+            self.search_b.setFocus()            
 
         def checked():
             for i in range(self.verticalLayout.count()):
                 if rad_but[i].isChecked():
                     found = rad_but[i].text()
                     print(found)
-                    update_(i+1)
+                    print(i+1)
+                    conn = sqlite3.connect(os.path.join(curr_path,'Databases\Prioritize.db'))
+                    c = conn.cursor()
+                    c.execute("SELECT rowid,* FROM tasks WHERE pending==1 ORDER BY due DESC")
+                    items = c.fetchall()
+                    for item in enumerate(items, start=1):
+                        if item[0]==(i+1):
+                            print(item)
+                            var = c.execute("SELECT rowid,* from tasks WHERE rowid = ?", (item[1][0],)).fetchall()
+                            print(var)
+                            val = c.execute("SELECT pending FROM tasks WHERE rowid = " + str(item[1][0])).fetchone()
+                            print(val)
+                            if val[0] == 1:
+                                c.execute("UPDATE tasks SET pending = 0 WHERE rowid = ?", (item[1][0],))
+                                print(val[0])
+                    conn.commit()
+                    conn.close()
+            remove_()
+            load()
 
         def delete(i):
             for i in range(self.verticalLayout.count()):
@@ -394,7 +394,7 @@ class Window(QMainWindow):
                     for item in enumerate(items, start=1):
                         if item[0]==(i+1):
                             print(item[1][0])
-                            c.execute("DELETE from tasks WHERE rowid = ?", (item[1][0],))
+                            c.execute("DELETE from tasks WHERE rowid = (?)", (item[1][0],))
                             conn.commit()
                             conn.close()
             remove_()
@@ -565,6 +565,10 @@ class Window(QMainWindow):
         self.search_bu.clicked.connect(search)
         self.calendarWidget.setSelectionMode(QCalendarWidget.NoSelection)
         self.Logo.setText('<img src="Images\logo.svg" width=75 height=75></img>')
+        self.Completed.setStyleSheet("QPushButton{font: 9pt 'SansSerif';text-align: center;border-radius: 7px; border-radius: 15px;}QPushButton:hover {border : 2px solid black;} QPushButton:focus {outline: 0;border: 2px solid black;}")
+        self.Today.setStyleSheet("QPushButton{font: 9pt 'SansSerif';text-align: center;border-radius: 7px; border-radius: 15px;}QPushButton:hover {border : 2px solid black;} QPushButton:focus {outline: 0;border: 2px solid black;}")
+        self.Upcoming.setStyleSheet("QPushButton{font: 9pt 'SansSerif';text-align: center;border-radius: 7px; border-radius: 15px;}QPushButton:hover {border : 2px solid black;} QPushButton:focus {outline: 0;border: 2px solid black;}")
+        self.Later.setStyleSheet("QPushButton{font: 9pt 'SansSerif';text-align: center;border-radius: 7px; border-radius: 15px;}QPushButton:hover {border : 2px solid black;} QPushButton:focus {outline: 0;border: 2px solid black;}")
         
         def suffix(d):
             return 'th' if 11<=d<=13 else {1:'st',2:'nd',3:'rd'}.get(d%10, 'th')
