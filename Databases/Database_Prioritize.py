@@ -152,7 +152,7 @@ def sort():
 # create_table()
 # delete_table('tasks')
 # add_data('hi', 'jsv x jcbsd ')
-# delete("tasks",12)
+# delete("tasks",1)
 # deleteAll("tasks")
 # print_data("tasks")
 # print_tables()
@@ -186,3 +186,25 @@ sort()
 #     t_name[i]
 #     rad_but.append(t_name[i][0] + r)
 # print(rad_but)
+# today = datetime.datetime.now().strftime("%Y-%m-%d")
+# next = int(today[8:10])+1
+# week = int(today[8:10])+7
+# if week<10:
+#     week = "0"+str(week)
+# if next<10:
+#     next = "0"+str(next)
+# week = today[0:8] + str(week)
+# next = today[0:8] + str(next)
+# # print(today, next, week)
+
+# current_date = datetime.datetime.now().strftime("%Y-%m-%d")
+# current_date_temp = datetime.datetime.strptime(current_date, "%Y-%m-%d")
+# newdate = str(current_date_temp + datetime.timedelta(days=30))
+# # print(current_date, newdate[0:10])
+
+# today = datetime.datetime.now().strftime("%Y-%m-%d")
+# tod_temp = datetime.datetime.strptime(today, "%Y-%m-%d")
+# next = str(tod_temp + datetime.timedelta(days=1))
+# week = str(tod_temp + datetime.timedelta(days=7))
+# month = str(tod_temp + datetime.timedelta(days=30))
+# print(today, next[0:10], week[0:10], month[0:10])

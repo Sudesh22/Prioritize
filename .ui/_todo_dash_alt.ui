@@ -494,6 +494,26 @@ QPushButton:focus{outline: 0;}</string>
      <string>Later</string>
     </property>
    </widget>
+   <widget class="QLabel" name="search_res">
+    <property name="geometry">
+     <rect>
+      <x>360</x>
+      <y>340</y>
+      <width>351</width>
+      <height>32</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">*{font: 9pt &quot;SansSerif&quot;;
+text-align: center;
+border-radius: 10px;
+background-color:rgb(255, 255, 255);
+}</string>
+    </property>
+    <property name="text">
+     <string>Search Results</string>
+    </property>
+   </widget>
    <zorder>backg</zorder>
    <zorder>hello_l</zorder>
    <zorder>search_b</zorder>
@@ -511,10 +531,11 @@ QPushButton:focus{outline: 0;}</string>
    <zorder>Logo</zorder>
    <zorder>label_4</zorder>
    <zorder>search_bu</zorder>
-   <zorder>Completed</zorder>
-   <zorder>Today</zorder>
    <zorder>Upcoming</zorder>
    <zorder>Later</zorder>
+   <zorder>Today</zorder>
+   <zorder>Completed</zorder>
+   <zorder>search_res</zorder>
   </widget>
  </widget>
  <resources/>

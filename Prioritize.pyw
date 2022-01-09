@@ -152,7 +152,7 @@ class create_nt(QMainWindow):
         # self.due_on.setDisplayFormat('yyyy-MM-dd hh:mm')
         self.save.clicked.connect(lambda: add_data(self.task_name.text(), self.task_desc.text(), self.due_on.text()))
         # self.save.clicked.connect(lambda: abc(self.due_on.text()))
-        self.discard.clicked.connect(lambda: close_win())
+        self.discard.clicked.connect(close_win)
 
     def enterEvent(self, event):
         print("Mouse Entered")
@@ -285,43 +285,44 @@ class Window(QMainWindow):
         conn = sqlite3.connect(os.path.join(curr_path,'Databases\Prioritize.db'))
         c = conn.cursor()
         c.execute("SELECT * FROM tasks WHERE pending=1 ORDER BY due DESC")
-        global t_name
-        t_name = c.execute("SELECT task_name FROM tasks WHERE pending=1").fetchall()
 
-        global rad_but
-        rad_but = []
-        for i in range(0,len(t_name)):
-            r = '_r'
-            t_name[i]
-            rad_but.append(t_name[i][0] + r)
+        # global t_name
+        # t_name = c.execute("SELECT task_name FROM tasks WHERE pending=1").fetchall()
 
-        global del_but
-        del_but = []
-        for i in range(0,len(t_name)):
-            d = '_d'
-            t_name[i]
-            del_but.append(t_name[i][0] + d)
+        # global rad_but
+        # rad_but = []
+        # for i in range(0,len(t_name)):
+        #     r = '_r'
+        #     t_name[i]
+        #     rad_but.append(t_name[i][0] + r)
 
-        global frames
-        frames = []
-        for i in range(0,len(t_name)):
-            f = '_f'
-            t_name[i]
-            frames.append(t_name[i][0] + f)
+        # global del_but
+        # del_but = []
+        # for i in range(0,len(t_name)):
+        #     d = '_d'
+        #     t_name[i]
+        #     del_but.append(t_name[i][0] + d)
 
-        global h_lay
-        h_lay = []
-        for i in range(0,len(t_name)):
-            h = '_h'
-            t_name[i]
-            h_lay.append(t_name[i][0] + h)
+        # global frames
+        # frames = []
+        # for i in range(0,len(t_name)):
+        #     f = '_f'
+        #     t_name[i]
+        #     frames.append(t_name[i][0] + f)
+
+        # global h_lay
+        # h_lay = []
+        # for i in range(0,len(t_name)):
+        #     h = '_h'
+        #     t_name[i]
+        #     h_lay.append(t_name[i][0] + h)
         conn.close()
 
         def new():
             self.window = create_nt()
             self.window.show()      
 
-        def show_info(i):
+        def show_info(num):
             # print(i)
             win = show_task()
             win.show()
@@ -330,14 +331,24 @@ class Window(QMainWindow):
                 if info[i].isChecked():
                     conn = sqlite3.connect(os.path.join(curr_path,'Databases\Prioritize.db'))
                     c = conn.cursor()
-                    c.execute("SELECT rowid,* FROM tasks ORDER BY due DESC")
-                    items = c.fetchall()
+                    today = datetime.datetime.now().strftime("%Y-%m-%d")
+                    tod_temp = datetime.datetime.strptime(today, "%Y-%m-%d")
+                    if num==1:
+                        items = c.execute("SELECT rowid, * FROM tasks WHERE pending = 0 ORDER BY due DESC")
+                    if num==2:
+                        items = c.execute("SELECT rowid, * FROM tasks WHERE due BETWEEN '" + today + " 00:00:00' AND '" + today + " 23:59:59' AND pending = 1 ORDER BY due DESC")
+                    if num==3:
+                        next = str(tod_temp + datetime.timedelta(days=1))[0:10]
+                        week = str(tod_temp + datetime.timedelta(days=7))[0:10]
+                        items = c.execute("SELECT rowid, * FROM tasks WHERE due BETWEEN '" + next + " 00:00:00' AND '" + week + " 23:59:59' AND pending = 1 ORDER BY due DESC")
+                    if num==4:
+                        week_temp = str(tod_temp + datetime.timedelta(days=8))[0:10]
+                        month = str(tod_temp + datetime.timedelta(days=30))[0:10]
+                        items = c.execute("SELECT rowid, * FROM tasks WHERE due BETWEEN '" + week_temp + " 00:00:00' AND '" + month + " 23:59:59' AND pending = 1 ORDER BY due DESC")
                     for item in enumerate(items, start=1):
                         if item[0]==(i+1):
                             var = c.execute("SELECT rowid,* from tasks WHERE rowid = ?", (item[1][0],)).fetchall()
                             print(var)
-                            conn.commit()
-                            conn.close()
                             win.task_name.setText(var[0][1])
                             win.task_desc.setText(var[0][2])
                             # print(var[0][0])
@@ -346,16 +357,18 @@ class Window(QMainWindow):
                             print(curr)
                             a = datetime.datetime.strptime(var[0][3], "%Y-%m-%d %H:%M:%S")
                             win.due_on.setDateTime(datetime.datetime.strptime(a.strftime("%d-%m-%Y %H:%M"), "%d-%m-%Y %H:%M"))
+                    conn.commit()
+                    conn.close()
 
         def on_focusChanged():
             if self.isActiveWindow():
                 remove_()
-                load()
+                load(2)
 
         def search():
             self.search_b.setFocus()            
 
-        def checked():
+        def checked(num):
             for i in range(self.verticalLayout.count()):
                 if rad_but[i].isChecked():
                     found = rad_but[i].text()
@@ -363,8 +376,20 @@ class Window(QMainWindow):
                     print(i+1)
                     conn = sqlite3.connect(os.path.join(curr_path,'Databases\Prioritize.db'))
                     c = conn.cursor()
-                    c.execute("SELECT rowid,* FROM tasks WHERE pending==1 ORDER BY due DESC")
-                    items = c.fetchall()
+                    today = datetime.datetime.now().strftime("%Y-%m-%d")
+                    tod_temp = datetime.datetime.strptime(today, "%Y-%m-%d")
+                    next = str(tod_temp + datetime.timedelta(days=1))[0:10]
+                    week = str(tod_temp + datetime.timedelta(days=7))[0:10]
+                    week_temp = str(tod_temp + datetime.timedelta(days=8))[0:10]
+                    month = str(tod_temp + datetime.timedelta(days=30))[0:10]
+                    if num==1:
+                        items = c.execute("SELECT rowid, * FROM tasks WHERE pending = 0 ORDER BY due DESC")
+                    if num==2:
+                        items = c.execute("SELECT rowid, * FROM tasks WHERE due BETWEEN '" + today + " 00:00:00' AND '" + today + " 23:59:59' AND pending = 1 ORDER BY due DESC")
+                    if num==3:
+                        items = c.execute("SELECT rowid, * FROM tasks WHERE due BETWEEN '" + next + " 00:00:00' AND '" + week + " 23:59:59' AND pending = 1 ORDER BY due DESC")
+                    if num==4:
+                        items = c.execute("SELECT rowid, * FROM tasks WHERE due BETWEEN '" + week_temp + " 00:00:00' AND '" + month + " 23:59:59' AND pending = 1 ORDER BY due DESC")
                     for item in enumerate(items, start=1):
                         if item[0]==(i+1):
                             print(item)
@@ -378,9 +403,46 @@ class Window(QMainWindow):
                     conn.commit()
                     conn.close()
             remove_()
-            load()
+            load(num)
 
-        def delete(i):
+        def rechecked(num):
+            for i in range(self.verticalLayout.count()):
+                if rad_but[i].isChecked():
+                    found = rad_but[i].text()
+                    print(found)
+                    print(i+1)
+                    conn = sqlite3.connect(os.path.join(curr_path,'Databases\Prioritize.db'))
+                    c = conn.cursor()
+                    today = datetime.datetime.now().strftime("%Y-%m-%d")
+                    tod_temp = datetime.datetime.strptime(today, "%Y-%m-%d")
+                    if num==1:
+                        items = c.execute("SELECT rowid, * FROM tasks WHERE pending = 0 ORDER BY due DESC")
+                    if num==2:
+                        items = c.execute("SELECT rowid, * FROM tasks WHERE due BETWEEN '" + today + " 00:00:00' AND '" + today + " 23:59:59' AND pending = 1 ORDER BY due DESC")
+                    if num==3:
+                        next = str(tod_temp + datetime.timedelta(days=1))[0:10]
+                        week = str(tod_temp + datetime.timedelta(days=7))[0:10]
+                        items = c.execute("SELECT rowid, * FROM tasks WHERE due BETWEEN '" + next + " 00:00:00' AND '" + week + " 23:59:59' AND pending = 1 ORDER BY due DESC")
+                    if num==4:
+                        week_temp = str(tod_temp + datetime.timedelta(days=8))[0:10]
+                        month = str(tod_temp + datetime.timedelta(days=30))[0:10]
+                        items = c.execute("SELECT rowid, * FROM tasks WHERE due BETWEEN '" + week_temp + " 00:00:00' AND '" + month + " 23:59:59' AND pending = 1 ORDER BY due DESC")
+                    for item in enumerate(items, start=1):
+                        if item[0]==(i+1):
+                            print(item)
+                            var = c.execute("SELECT rowid,* from tasks WHERE rowid = ?", (item[1][0],)).fetchall()
+                            print(var)
+                            val = c.execute("SELECT pending FROM tasks WHERE rowid = " + str(item[1][0])).fetchone()
+                            print(val)
+                            if val[0] == 0:
+                                c.execute("UPDATE tasks SET pending = 1 WHERE rowid = ?", (item[1][0],))
+                                print(val[0])
+                    conn.commit()
+                    conn.close()
+            remove_()
+            load(num)
+
+        def delete(num):
             for i in range(self.verticalLayout.count()):
                 if del_but[i].isChecked():
                     found = rad_but[i].text()
@@ -389,69 +451,125 @@ class Window(QMainWindow):
                     print(i+1)
                     conn = sqlite3.connect(os.path.join(curr_path,'Databases\Prioritize.db'))
                     c = conn.cursor()
-                    c.execute("SELECT rowid,* FROM tasks ORDER BY due DESC")
-                    items = c.fetchall()
+                    today = datetime.datetime.now().strftime("%Y-%m-%d")
+                    tod_temp = datetime.datetime.strptime(today, "%Y-%m-%d")
+                    if num==1:
+                        items = c.execute("SELECT rowid, * FROM tasks WHERE pending = 0 ORDER BY due DESC")
+                    if num==2:
+                        items = c.execute("SELECT rowid, * FROM tasks WHERE due BETWEEN '" + today + " 00:00:00' AND '" + today + " 23:59:59' AND pending = 1 ORDER BY due DESC")
+                    if num==3:
+                        next = str(tod_temp + datetime.timedelta(days=1))[0:10]
+                        week = str(tod_temp + datetime.timedelta(days=7))[0:10]
+                        items = c.execute("SELECT rowid, * FROM tasks WHERE due BETWEEN '" + next + " 00:00:00' AND '" + week + " 23:59:59' AND pending = 1 ORDER BY due DESC")
+                    if num==4:
+                        week_temp = str(tod_temp + datetime.timedelta(days=8))[0:10]
+                        month = str(tod_temp + datetime.timedelta(days=30))[0:10]
+                        items = c.execute("SELECT rowid, * FROM tasks WHERE due BETWEEN '" + week_temp + " 00:00:00' AND '" + month + " 23:59:59' AND pending = 1 ORDER BY due DESC")
                     for item in enumerate(items, start=1):
                         if item[0]==(i+1):
                             print(item[1][0])
                             c.execute("DELETE from tasks WHERE rowid = (?)", (item[1][0],))
-                            conn.commit()
-                            conn.close()
+                    conn.commit()
+                    conn.close()
             remove_()
-            load()
+            load(num)
 
         def remove_():
             for i in reversed(range(self.verticalLayout.count())): 
                 self.verticalLayout.itemAt(i).widget().deleteLater()
 
-        def load():
+        def option(num):
+            if num==1:
+                self.Completed.setStyleSheet("QPushButton{font: 9pt 'SansSerif';text-align: center;border-radius: 15px;border : 2px solid black;}QPushButton:focus { outline: 0;}")
+                self.Today.setStyleSheet("QPushButton{font: 9pt 'SansSerif';text-align: center;border-radius: 15px;} QPushButton:focus { outline: 0;}")
+                self.Upcoming.setStyleSheet("QPushButton{font: 9pt 'SansSerif';text-align: center;border-radius: 15px;} QPushButton:focus { outline: 0;}")
+                self.Later.setStyleSheet("QPushButton{font: 9pt 'SansSerif';text-align: center;border-radius: 15px;} QPushButton:focus { outline: 0;}")
+            elif num==2:
+                self.Completed.setStyleSheet("QPushButton{font: 9pt 'SansSerif';text-align: center;border-radius: 15px;} QPushButton:focus { outline: 0;}")
+                self.Today.setStyleSheet("QPushButton{font: 9pt 'SansSerif';text-align: center;border-radius: 15px;border : 2px solid black;}QPushButton:focus { outline: 0;}")
+                self.Upcoming.setStyleSheet("QPushButton{font: 9pt 'SansSerif';text-align: center;border-radius: 15px;} QPushButton:focus { outline: 0;}")
+                self.Later.setStyleSheet("QPushButton{font: 9pt 'SansSerif';text-align: center;border-radius: 15px;} QPushButton:focus { outline: 0;}")
+            elif num==3:
+                self.Completed.setStyleSheet("QPushButton{font: 9pt 'SansSerif';text-align: center;border-radius: 15px;} QPushButton:focus { outline: 0;}")
+                self.Today.setStyleSheet("QPushButton{font: 9pt 'SansSerif';text-align: center;border-radius: 15px;} QPushButton:focus { outline: 0;}")
+                self.Upcoming.setStyleSheet("QPushButton{font: 9pt 'SansSerif';text-align: center;border-radius: 15px;border : 2px solid black;}QPushButton:focus { outline: 0;}")
+                self.Later.setStyleSheet("QPushButton{font: 9pt 'SansSerif';text-align: center;border-radius: 15px;} QPushButton:focus { outline: 0;}")
+            else:
+                self.Completed.setStyleSheet("QPushButton{font: 9pt 'SansSerif';text-align: center;border-radius: 15px;} QPushButton:focus { outline: 0;}")
+                self.Today.setStyleSheet("QPushButton{font: 9pt 'SansSerif';text-align: center;border-radius: 15px;} QPushButton:focus { outline: 0;}")
+                self.Upcoming.setStyleSheet("QPushButton{font: 9pt 'SansSerif';text-align: center;border-radius: 15px;} QPushButton:focus { outline: 0;}")
+                self.Later.setStyleSheet("QPushButton{font: 9pt 'SansSerif';text-align: center;border-radius: 15px;border : 2px solid black;}QPushButton:focus { outline: 0;}")
+
+        def load(num):
+            option(num)
             conn = sqlite3.connect(os.path.join(curr_path,'Databases\Prioritize.db'))
             c = conn.cursor()
-            tasks_e = c.execute("SELECT rowid, * FROM tasks WHERE pending = 1 ORDER BY due DESC").fetchall()
-            t_name = c.execute("SELECT task_name FROM tasks WHERE pending = 1 ORDER BY due DESC").fetchall()
-            
-            c.execute("SELECT rowid, * FROM tasks WHERE pending=1 ORDER BY due DESC")
-
+            today = datetime.datetime.now().strftime("%Y-%m-%d")
+            tod_temp = datetime.datetime.strptime(today, "%Y-%m-%d")
+            pen_tod = c.execute("SELECT rowid, * FROM tasks WHERE due BETWEEN '" + today + " 00:00:00' AND '" + today + " 23:59:59' AND pending = 1 ORDER BY due DESC").fetchall()
+            global t_name, tasks_e
+            total = c.execute("SELECT task_name FROM tasks WHERE pending=1").fetchall()
+            if num==1:
+                tasks_e = c.execute("SELECT rowid, * FROM tasks WHERE pending = 0 ORDER BY due DESC").fetchall()
+                t_name = c.execute("SELECT task_name FROM tasks WHERE pending = 0 ORDER BY due DESC").fetchall()
+            if num==2:
+                self.Today.setStyleSheet("QPushButton{font: 9pt 'SansSerif';text-align: center;border-radius: 15px;border : 2px solid black;}QPushButton:focus { outline: 0;}")
+                tasks_e = c.execute("SELECT rowid, * FROM tasks WHERE due BETWEEN '" + today + " 00:00:00' AND '" + today + " 23:59:59' AND pending = 1 ORDER BY due DESC").fetchall()
+                t_name = c.execute("SELECT task_name FROM tasks WHERE due BETWEEN '" + today + " 00:00:00' AND '" + today + " 23:59:59' AND pending = 1 ORDER BY due DESC").fetchall()
+            if num==3:
+                next = str(tod_temp + datetime.timedelta(days=1))[0:10]
+                week = str(tod_temp + datetime.timedelta(days=7))[0:10]
+                tasks_e = c.execute("SELECT rowid, * FROM tasks WHERE due BETWEEN '" + next + " 00:00:00' AND '" + week + " 23:59:59' AND pending = 1 ORDER BY due DESC").fetchall()
+                t_name = c.execute("SELECT task_name FROM tasks WHERE due BETWEEN '" + next + " 00:00:00' AND '" + week + " 23:59:59' AND pending = 1 ORDER BY due DESC").fetchall()
+            if num==4:
+                week_temp = str(tod_temp + datetime.timedelta(days=8))[0:10]
+                month = str(tod_temp + datetime.timedelta(days=30))[0:10]
+                tasks_e = c.execute("SELECT rowid, * FROM tasks WHERE due BETWEEN '" + week_temp + " 00:00:00' AND '" + month + " 23:59:59' AND pending = 1 ORDER BY due DESC").fetchall()
+                t_name = c.execute("SELECT task_name FROM tasks WHERE due BETWEEN '" + week_temp + " 00:00:00' AND '" + month + " 23:59:59' AND pending = 1 ORDER BY due DESC").fetchall()
+            # c.execute("SELECT rowid, * FROM tasks WHERE pending=1 ORDER BY due DESC")
+            # print(t_name[0])
             global rad_but
             rad_but = []
-            for i in range(0,len(t_name)):
+            for i in range(0,len(total)):
                 r = '_r'
-                t_name[i]
-                rad_but.append(t_name[i][0] + r)
+                total[i]
+                rad_but.append(total[i][0] + r)
 
             global del_but
             del_but = []
-            for i in range(0,len(t_name)):
+            for i in range(0,len(total)):
                 d = '_d'
-                t_name[i]
-                del_but.append(t_name[i][0] + d)
+                total[i]
+                del_but.append(total[i][0] + d)
 
             global info
             info = []
-            for i in range(0,len(t_name)):
+            for i in range(0,len(total)):
                 d = '_d'
-                t_name[i]
-                info.append(t_name[i][0] + d)
+                total[i]
+                info.append(total[i][0] + d)
 
             global frames
             frames = []
-            for i in range(0,len(t_name)):
+            for i in range(0,len(total)):
                 f = '_f'
-                t_name[i]
-                frames.append(t_name[i][0] + f)
+                total[i]
+                frames.append(total[i][0] + f)
 
             global h_lay
             h_lay = []
-            for i in range(0,len(t_name)):
+            for i in range(0,len(total)):
                 h = '_h'
-                t_name[i]
-                h_lay.append(t_name[i][0] + h)
+                total[i]
+                h_lay.append(total[i][0] + h)
 
             if tasks_e==[]:
+                remove_()
                 conn = sqlite3.connect(os.path.join(curr_path,'Databases\Prioritize.db'))
                 c = conn.cursor()
                 name = c.execute("SELECT name FROM personal_info").fetchall()
-                self.hello_l.setText("Hello " + name[0][0] + "! You have no tasks scheduled for today!")
+                if pen_tod==[]:
+                    self.hello_l.setText("Hello " + name[0][0] + "! You have no tasks scheduled for today!")
                 conn.close()
                 global cont
                 cont = QFrame()
@@ -460,7 +578,14 @@ class Window(QMainWindow):
                 cont.setStyleSheet("""*{background-color: rgb(255,255,255);}""")
                 cont.setFixedHeight(358)
                 cont.setLayout(h_layout)
-                label = QLabel("<center>Create new task</center>\n<center>New tasks are displayed here</center>")
+                if num==1:
+                    label = QLabel("<center>Tasks you complete</center>\n<center>are displayed here</center>")
+                elif num==2:
+                    label = QLabel("<center>Create new task</center>\n<center>New tasks are displayed here</center>")
+                elif num==3:
+                    label = QLabel("<center>Tasks for next week</center>\n<center>are displayed here</center>")
+                elif num==4:
+                    label = QLabel("<center>Tasks scheduled for next month</center>\n<center>are displayed here</center>")
                 label.setStyleSheet("""font: 10pt "SansSerif";color: rgb(0, 0, 0);""")
                 h_layout.addWidget(label)
                 self.verticalLayout.setAlignment(Qt.AlignHCenter)
@@ -470,16 +595,21 @@ class Window(QMainWindow):
                     conn = sqlite3.connect(os.path.join(curr_path,'Databases\Prioritize.db'))
                     c = conn.cursor()
                     name = c.execute("SELECT name FROM personal_info").fetchall()
-                    self.hello_l.setText("Hello " + name[0][0] + "! You have " + str(len(t_name)) + " task scheduled for today!")
+                    self.hello_l.setText("Hello " + name[0][0] + "! You have " + str(len(pen_tod)) + " task scheduled for today!")
                     conn.close()
                 else:
                     conn = sqlite3.connect(os.path.join(curr_path,'Databases\Prioritize.db'))
                     c = conn.cursor()
                     name = c.execute("SELECT name FROM personal_info").fetchall()
-                    self.hello_l.setText("Hello " + name[0][0] + "! You have " + str(len(t_name)) + " tasks scheduled for today!")
+                    self.hello_l.setText("Hello " + name[0][0] + "! You have " + str(len(pen_tod)) + " tasks scheduled for today!")
                     conn.close()
 
                 if(self.search_b.text() == ""):
+                    if t_name==[]:
+                        load(2)
+                    remove_()
+                    self.search_res.lower()
+                    self.search_res.setStyleSheet("*{background-color:rgb(255, 255, 255);font: 9pt 'SansSerif';text-align: center;border-radius: 10px;}")
                     for i in range(len(t_name)):
                         name = t_name[i][0]
                         frames[i] = QFrame()
@@ -488,20 +618,23 @@ class Window(QMainWindow):
                         rad_but[i] = QRadioButton()
                         rad_but[i].setText(name)
                         rad_but[i].setAutoExclusive(False)
-                        rad_but[i].toggled.connect(checked)
+                        if num==1:
+                            rad_but[i].toggled.connect(lambda: rechecked(num))
+                        else:
+                            rad_but[i].toggled.connect(lambda: checked(num))
 
                         info[i] = QPushButton()
                         info[i].setIcon(QIcon(os.path.join(curr_path,'Images\_info.png')))
                         info[i].setIconSize(QSize(25, 25))
                         info[i].setFixedSize(40, 40)
                         info[i].setCheckable(True)
-                        info[i].clicked.connect(show_info)
+                        info[i].clicked.connect(lambda: show_info(num))
                         del_but[i] = QPushButton()
                         del_but[i].setIcon(QIcon(os.path.join(curr_path,'Images\_trash.png')))
                         del_but[i].setIconSize(QSize(25, 25))
                         del_but[i].setFixedSize(40, 40)
                         del_but[i].setCheckable(True)
-                        del_but[i].clicked.connect(delete)
+                        del_but[i].clicked.connect(lambda: delete(num))
 
                         frames[i].setStyleSheet("""*{background-color: rgb(255, 221, 0);height: 20px;color: rgb(0, 0, 0);border-radius: 20px;font: 10pt "SansSerif";padding: 20px;} QRadioButton::indicator{width: 17px; height: 17px;} QFrame{padding: 1px;}""")
                         frames[i].setFixedHeight(90)
@@ -512,49 +645,71 @@ class Window(QMainWindow):
                         frames[i].setLayout(h_lay[i])
 
                         self.verticalLayout.setAlignment(Qt.AlignTop)
-                        self.verticalLayout.addWidget(frames[i])       
+                        self.verticalLayout.addWidget(frames[i])  
                 else:
+                    remove_()
+                    self.search_res.raise_()
+                    self.search_res.setStyleSheet("*{background-color:rgb(255, 255, 255);font: 9pt 'SansSerif';text-align: center;border-radius: 10px;}")
                     key = self.search_b.text()
                     conn = sqlite3.connect(os.path.join(curr_path,'Databases\Prioritize.db'))
                     c = conn.cursor()
                     t_name = c.execute(f"SELECT task_name FROM tasks WHERE task_name LIKE '%{key}%' ORDER BY due DESC").fetchall()
-                    conn.close()
-                    remove_()
+                    if t_name == []:
+                        remove_()
+                        # global head
+                        head = QFrame()
+                        # global h_layout
+                        h_layout = QHBoxLayout()
+                        head.setStyleSheet("""*{background-color: rgb(255,255,255);}""")
+                        head.setFixedHeight(50)
+                        head.setLayout(h_layout)
+                        label = QLabel("<center>No results!</center>")
+                        label.setStyleSheet("""font: 10pt "SansSerif";color: rgb(0, 0, 0);""")
+                        h_layout.addWidget(label)
+                        self.verticalLayout.setAlignment(Qt.AlignHCenter)
+                        self.verticalLayout.addWidget(head)
+                    else:
+                        remove_()
+                        # print(frames)
 
-                    for i in range(len(t_name)):
-                        name = t_name[i][0]
-                        frames[i] = QFrame()
-                        h_lay[i] = QHBoxLayout()
+                        for i in range(len(t_name)):
+                            # print(i, "/", len(t_name), len(frames))
+                            name = t_name[i][0]
+                            frames[i] = QFrame()
+                            h_lay[i] = QHBoxLayout()
 
-                        rad_but[i] = QRadioButton()
-                        rad_but[i].setText(name)
-                        rad_but[i].setAutoExclusive(False)
-                        rad_but[i].toggled.connect(checked)
+                            rad_but[i] = QRadioButton()
+                            rad_but[i].setText(name)
+                            rad_but[i].setAutoExclusive(False)
+                            if num==1:
+                                rad_but[i].toggled.connect(lambda: rechecked(num))
+                            else:
+                                rad_but[i].toggled.connect(lambda: checked(num))
 
-                        info[i] = QPushButton()
-                        info[i].setIcon(QIcon(os.path.join(curr_path,'Images\_info.png')))
-                        info[i].setIconSize(QSize(25, 25))
-                        info[i].setFixedSize(40, 40)
-                        info[i].setCheckable(True)
-                        info[i].clicked.connect(show_info)
-                        del_but[i] = QPushButton()
-                        del_but[i].setIcon(QIcon(os.path.join(curr_path,'Images\_trash.png')))
-                        del_but[i].setIconSize(QSize(25, 25))
-                        del_but[i].setFixedSize(40, 40)
-                        del_but[i].setCheckable(True)
-                        del_but[i].clicked.connect(delete)
+                            info[i] = QPushButton()
+                            info[i].setIcon(QIcon(os.path.join(curr_path,'Images\_info.png')))
+                            info[i].setIconSize(QSize(25, 25))
+                            info[i].setFixedSize(40, 40)
+                            info[i].setCheckable(True)
+                            info[i].clicked.connect(lambda: show_info(num))
+                            del_but[i] = QPushButton()
+                            del_but[i].setIcon(QIcon(os.path.join(curr_path,'Images\_trash.png')))
+                            del_but[i].setIconSize(QSize(25, 25))
+                            del_but[i].setFixedSize(40, 40)
+                            del_but[i].setCheckable(True)
+                            del_but[i].clicked.connect(lambda: delete(num))
 
-                        frames[i].setStyleSheet("""*{background-color: rgb(255, 221, 0);height: 20px;color: rgb(0, 0, 0);border-radius: 20px;font: 10pt "SansSerif";padding: 20px;} QRadioButton::indicator{width: 17px; height: 17px;} QFrame{padding: 1px;}""")
-                        frames[i].setFixedHeight(90)
+                            frames[i].setStyleSheet("""*{background-color: rgb(255, 221, 0);height: 20px;color: rgb(0, 0, 0);border-radius: 20px;font: 10pt "SansSerif";padding: 20px;} QRadioButton::indicator{width: 17px; height: 17px;} QFrame{padding: 1px;}""")
+                            frames[i].setFixedHeight(90)
 
-                        h_lay[i].addWidget(rad_but[i])
-                        h_lay[i].addWidget(info[i])
-                        h_lay[i].addWidget(del_but[i])
-                        frames[i].setLayout(h_lay[i])
+                            h_lay[i].addWidget(rad_but[i])
+                            h_lay[i].addWidget(info[i])
+                            h_lay[i].addWidget(del_but[i])
+                            frames[i].setLayout(h_lay[i])
 
-                        self.verticalLayout.setAlignment(Qt.AlignTop)
-                        self.verticalLayout.addWidget(frames[i])       
-                
+                            self.verticalLayout.setAlignment(Qt.AlignTop)
+                            self.verticalLayout.addWidget(frames[i])       
+                    
         self.search_b.setPlaceholderText("  Search Tasks")
         self.search_b.textChanged[str].connect(load)
         self.close.clicked.connect(sys.exit)
@@ -565,10 +720,14 @@ class Window(QMainWindow):
         self.search_bu.clicked.connect(search)
         self.calendarWidget.setSelectionMode(QCalendarWidget.NoSelection)
         self.Logo.setText('<img src="Images\logo.svg" width=75 height=75></img>')
-        self.Completed.setStyleSheet("QPushButton{font: 9pt 'SansSerif';text-align: center;border-radius: 7px; border-radius: 15px;}QPushButton:hover {border : 2px solid black;} QPushButton:focus {outline: 0;border: 2px solid black;}")
-        self.Today.setStyleSheet("QPushButton{font: 9pt 'SansSerif';text-align: center;border-radius: 7px; border-radius: 15px;}QPushButton:hover {border : 2px solid black;} QPushButton:focus {outline: 0;border: 2px solid black;}")
-        self.Upcoming.setStyleSheet("QPushButton{font: 9pt 'SansSerif';text-align: center;border-radius: 7px; border-radius: 15px;}QPushButton:hover {border : 2px solid black;} QPushButton:focus {outline: 0;border: 2px solid black;}")
-        self.Later.setStyleSheet("QPushButton{font: 9pt 'SansSerif';text-align: center;border-radius: 7px; border-radius: 15px;}QPushButton:hover {border : 2px solid black;} QPushButton:focus {outline: 0;border: 2px solid black;}")
+        self.Completed.setStyleSheet("QPushButton{font: 9pt 'SansSerif';text-align: center;border-radius: 15px;}QPushButton:hover {border : 2px solid black;} QPushButton:focus {outline: 0;border: 2px solid black;}")
+        self.Today.setStyleSheet("QPushButton{font: 9pt 'SansSerif';text-align: center;border-radius: 15px;}QPushButton:hover {border : 2px solid black;} QPushButton:focus {outline: 0;border: 2px solid black;}")
+        self.Upcoming.setStyleSheet("QPushButton{font: 9pt 'SansSerif';text-align: center;border-radius: 15px;}QPushButton:hover {border : 2px solid black;} QPushButton:focus {outline: 0;border: 2px solid black;}")
+        self.Later.setStyleSheet("QPushButton{font: 9pt 'SansSerif';text-align: center;border-radius: 15px;}QPushButton:hover {border : 2px solid black;} QPushButton:focus {outline: 0;border: 2px solid black;}")
+        self.Completed.clicked.connect(lambda: load(1))
+        self.Today.clicked.connect(lambda: load(2))
+        self.Upcoming.clicked.connect(lambda: load(3))
+        self.Later.clicked.connect(lambda: load(4))
         
         def suffix(d):
             return 'th' if 11<=d<=13 else {1:'st',2:'nd',3:'rd'}.get(d%10, 'th')
@@ -600,7 +759,7 @@ class Window(QMainWindow):
 
         self.new_task.clicked.connect(new)
         self.scrollArea.setStyleSheet("*{background-color: rgba(255, 255, 255, 0);} QScrollArea{border: none;} QScrollBar{width: 12px; background : rgba(0, 0, 0, 0.1); border-radius: 6px;}QScrollBar::handle{background : orange; width: 10px; border-radius: 6px;}QScrollBar::handle::pressed{background : orange;}QScrollBar::sub-line:vertical{background: none;}QScrollBar::add-line:vertical {background: none;}")
-        load()        
+        load(2)        
         
     def mousePressEvent(self, event):
         if event.button()==Qt.LeftButton:
