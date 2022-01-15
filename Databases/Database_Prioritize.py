@@ -152,7 +152,7 @@ def sort():
 # create_table()
 # delete_table('tasks')
 # add_data('hi', 'jsv x jcbsd ')
-# delete("tasks",1)
+# delete("tasks",16)
 # deleteAll("tasks")
 # print_data("tasks")
 # print_tables()

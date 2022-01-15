@@ -564,6 +564,8 @@ class Window(QMainWindow):
                 h_lay.append(total[i][0] + h)
 
             if tasks_e==[]:
+                self.search_res.lower()
+                self.search_res.setStyleSheet("*{background-color:rgb(255, 255, 255);font: 9pt 'SansSerif';text-align: center;border-radius: 10px;}")
                 remove_()
                 conn = sqlite3.connect(os.path.join(curr_path,'Databases\Prioritize.db'))
                 c = conn.cursor()
@@ -578,6 +580,7 @@ class Window(QMainWindow):
                 cont.setStyleSheet("""*{background-color: rgb(255,255,255);}""")
                 cont.setFixedHeight(358)
                 cont.setLayout(h_layout)
+                global label
                 if num==1:
                     label = QLabel("<center>Tasks you complete</center>\n<center>are displayed here</center>")
                 elif num==2:
@@ -590,19 +593,21 @@ class Window(QMainWindow):
                 h_layout.addWidget(label)
                 self.verticalLayout.setAlignment(Qt.AlignHCenter)
                 self.verticalLayout.addWidget(cont)
+                num=2
             else:
-                if (len(t_name)==1):
-                    conn = sqlite3.connect(os.path.join(curr_path,'Databases\Prioritize.db'))
-                    c = conn.cursor()
-                    name = c.execute("SELECT name FROM personal_info").fetchall()
-                    self.hello_l.setText("Hello " + name[0][0] + "! You have " + str(len(pen_tod)) + " task scheduled for today!")
-                    conn.close()
-                else:
-                    conn = sqlite3.connect(os.path.join(curr_path,'Databases\Prioritize.db'))
-                    c = conn.cursor()
-                    name = c.execute("SELECT name FROM personal_info").fetchall()
-                    self.hello_l.setText("Hello " + name[0][0] + "! You have " + str(len(pen_tod)) + " tasks scheduled for today!")
-                    conn.close()
+                if num==2:
+                    if (len(t_name)==1):
+                        conn = sqlite3.connect(os.path.join(curr_path,'Databases\Prioritize.db'))
+                        c = conn.cursor()
+                        name = c.execute("SELECT name FROM personal_info").fetchall()
+                        self.hello_l.setText("Hello " + name[0][0] + "! You have " + str(len(pen_tod)) + " task scheduled for today!")
+                        conn.close()
+                    else:
+                        conn = sqlite3.connect(os.path.join(curr_path,'Databases\Prioritize.db'))
+                        c = conn.cursor()
+                        name = c.execute("SELECT name FROM personal_info").fetchall()
+                        self.hello_l.setText("Hello " + name[0][0] + "! You have " + str(len(pen_tod)) + " tasks scheduled for today!")
+                        conn.close()
 
                 if(self.search_b.text() == ""):
                     if t_name==[]:
