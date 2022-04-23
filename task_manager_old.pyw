@@ -130,13 +130,13 @@ def has_executed(executed, due):
     with open("test.log") as fp:
             for line in fp:
                 if j<len(due):
-                    print("line:",line)
+                    print("has_exec line:",line)
                     # line = fp.readline()
-                    print(due[j][1],line[11:30])
+                    print("has_exec",due[j][1],line[11:30])
                     if line.startswith(due[j][1], 11, 30):
                         n+=1
                         j+=1
-                        print("n:",n,"j:",j)
+                        print("has_exec","n:",n,"j:",j)
                         # rowid = int(line[32:34])
             for i in range(n):
                 executed[0][i] = 0
@@ -164,7 +164,7 @@ def is_due(executed,i,old):
         if due[i][1] == now:
             print("Due!!!")
             executed[0][i]=0
-            logging.debug(due[i][1] + ":" + str(due[i][0]))
+            logging.info(due[i][1] + "|" + str(due[i][0]))
             logging.shutdown()
             main(due[i][0])
             # new = len(due)
@@ -202,7 +202,7 @@ def Startup():
     i=0
     import numpy as np
     import logging
-    logging.basicConfig(filename='test.log', level=logging.DEBUG)
+    logging.basicConfig(filename='test.log', level=logging.INFO, format='%(message)s')
     conn = sqlite3.connect(os.path.join(curr_path,'Databases\Prioritize.db'))
     c = conn.cursor()
     
@@ -217,7 +217,7 @@ def Startup():
     if i==0 and old==0:
         while 1:
             due = c.execute("SELECT rowid,due FROM tasks WHERE due BETWEEN '" + today + " 00:00:00' AND '" + today + " 23:59:59'").fetchall()
-            print(due)
+            print("assds", due)
             time.sleep(0.5)
             if len(due)!=0:
                 Startup()
@@ -227,7 +227,7 @@ def Startup():
             if i<=old:
                 if has_passed(due[i][1]) and executed[0][i]!=0:
                     print(due[i][1], "is passed")
-                    logging.debug(due[i][1] + ":" + str(due[i][0]))
+                    logging.info(due[i][1] + "|" + str(due[i][0]))
                     logging.shutdown()
                     executed[0][i]=0
                     print(executed)

@@ -508,7 +508,7 @@ class Window(QMainWindow):
             tod_temp = datetime.datetime.strptime(today, "%Y-%m-%d")
             pen_tod = c.execute("SELECT rowid, * FROM tasks WHERE due BETWEEN '" + today + " 00:00:00' AND '" + today + " 23:59:59' AND pending = 1 ORDER BY due DESC").fetchall()
             global t_name, tasks_e
-            total = c.execute("SELECT task_name FROM tasks WHERE pending=1").fetchall()
+            total = c.execute("SELECT task_name FROM tasks").fetchall()
             if num==1:
                 tasks_e = c.execute("SELECT rowid, * FROM tasks WHERE pending = 0 ORDER BY due DESC").fetchall()
                 t_name = c.execute("SELECT task_name FROM tasks WHERE pending = 0 ORDER BY due DESC").fetchall()
