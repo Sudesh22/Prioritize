@@ -879,7 +879,7 @@ class Loading(QMainWindow):
         times = 0
         created = False
         for i in range(1, 101):
-            time.sleep(0.05)
+            time.sleep(0.025)
             val = val + 10
             self.label1.updateBar(i)
             self.label2.updateBar(i)
@@ -948,9 +948,8 @@ def main():
 
     def add_to_startup():
         import win32com.client
-        import pythoncom
-        path = 'C:\\Users\\%s\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Startup\\notification.lnk' % USER_NAME
-        target = os.path.join(curr_path, 'Programs\\_notification.exe')
+        path = 'C:\\Users\\%s\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Startup\\Prioritize.lnk' % USER_NAME
+        target = os.path.join(curr_path, 'task_manager.exe')
         icon = os.path.join(curr_path, 'Images\\img.ico') 
 
         shell = win32com.client.Dispatch("WScript.Shell")
@@ -960,7 +959,7 @@ def main():
         shortcut.WindowStyle = 1 # 7 - Minimized, 3 - Maximized, 1 - Normal
         shortcut.save()
 
-    if os.path.isfile('C:\\Users\\%s\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Startup\\notification.lnk' % USER_NAME):
+    if os.path.isfile('C:\\Users\\%s\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Startup\\Prioritize.lnk' % USER_NAME):
         pass
     else:
         add_to_startup()

@@ -4,7 +4,6 @@ from PyQt5.uic import loadUi
 from PyQt5 import QtWidgets, QtCore
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import QMainWindow, QApplication, QPushButton
-from PyQt5.uic.uiparser import DEBUG
 
 USER_NAME = getpass.getuser()
 if getattr(sys, 'frozen', False):
@@ -12,8 +11,6 @@ if getattr(sys, 'frozen', False):
 elif __file__:
         curr_path = os.path.dirname(__file__)
 print(curr_path)
-
-# title = ""
 
 class First(QMainWindow):
     def __init__(self, id):
@@ -42,14 +39,21 @@ class First(QMainWindow):
                 QApplication.processEvents()
                 time.sleep(0.01)
                 self.setGeometry(new + i, height - s_h, s_w, s_h)
-            # time = QTimer
-            # time.timeout.connect
             Startup()
-            # sys.exit()
+
         def func2():
             print("Completed button pressed")
+            conn = sqlite3.connect(os.path.join(curr_path,'Databases\Prioritize.db'))
+            c = conn.cursor()
+            due = c.execute("SELECT due FROM tasks WHERE rowid = (?)", (id,)).fetchone()
+            c.execute("UPDATE tasks SET pending = :pending WHERE oid = :oid", {'pending': 0,'oid': id})
+            conn.commit()
+            conn.close()
+            for i in range(0,s_w, 2):
+                QApplication.processEvents()
+                time.sleep(0.01)
+                self.setGeometry(new + i, height - s_h, s_w, s_h)
             Startup()
-            # sys.exit()
 
         def get_title(id):
             conn = sqlite3.connect(os.path.join(curr_path,'Databases\Prioritize.db'))
@@ -81,7 +85,6 @@ class First(QMainWindow):
                 time.sleep(0.01)
                 self.setGeometry(new + i, height - s_h, s_w, s_h)
 
-            # sys.exit()
         title = str(get_title(id))
         self.tname.setText(title)
         self.completed.setStyleSheet("QPushButton{font: 9pt 'SansSerif';color: black;text-align: center;background-color:rgb(255, 255, 255); border-radius: 15px;}QPushButton:hover{border : 2px solid black;}")
@@ -90,14 +93,6 @@ class First(QMainWindow):
         self.completed.clicked.connect(func2)
         self.snoozed.clicked.connect(Snooze)
         self.appName.setText("Prioritize")
-
-        # conn = sqlite3.connect(os.path.join(curr_path,'Databases\Prioritize.db'))
-        # c = conn.cursor()
-        # c.execute("SELECT * FROM tasks ORDER BY due DESC LIMIT 1")
-        # due = c.execute("SELECT task_name FROM tasks ORDER BY due DESC LIMIT 1").fetchone()
-
-        # self.tname.setText(due[0])
-
         self.desktop = QApplication.desktop()
         self.screenRect = self.desktop.screenGeometry()
         height = self.screenRect.height()
@@ -106,22 +101,12 @@ class First(QMainWindow):
         self.setGeometry(width + s_w, height - s_h, s_w, s_h)
         self.show()
         appear(self)
-        # wait = QTimer()
-        # # wait.timeout.connect(disappear)
-        # wait.start(1000)
-        # wait.stop()
-        # print("ended")
-        # main()
-        # main.close()
-        # Startup()
 
 def main(id):  
     
     app = QApplication(sys.argv)
     main = First(id)
     main.show()
-    # sys.exit(app.exec_())
-    # print("khubu")
 
 def has_executed(executed, due):
     n=0
@@ -131,17 +116,13 @@ def has_executed(executed, due):
             for line in fp:
                 if j<len(due):
                     print("has_exec line:",line)
-                    # line = fp.readline()
                     print("has_exec",due[j][1],line[11:30])
                     if line.startswith(due[j][1], 11, 30):
                         n+=1
                         j+=1
                         print("has_exec","n:",n,"j:",j)
-                        # rowid = int(line[32:34])
             for i in range(n):
                 executed[0][i] = 0
-        # else:
-            # pass
     print("n:",n,"exec"+str(executed))
     return executed
 
@@ -152,63 +133,49 @@ def has_passed(date):
 
 def is_due(executed,i,old):
     import numpy as np
-    import logging
     while 1:
         conn = sqlite3.connect(os.path.join(curr_path,'Databases\Prioritize.db'))
         c = conn.cursor()
         c.execute("SELECT * FROM tasks ORDER BY due DESC LIMIT 1")
         today = datetime.datetime.now().strftime("%Y-%m-%d")
-        due = c.execute("SELECT rowid,due FROM tasks WHERE due BETWEEN '" + today + " 00:00:00' AND '" + today + " 23:59:59'").fetchall()
+        due = c.execute("SELECT rowid,due FROM tasks WHERE due BETWEEN '" + today + " 00:00:00' AND '" + today + " 23:59:59' AND pending = 1").fetchall()
         now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")        
-        # print(now + " : " + due[i][1])
-        if due[i][1] == now:
-            print("Due!!!")
-            executed[0][i]=0
-            logging.info(due[i][1] + "|" + str(due[i][0]))
-            logging.shutdown()
-            main(due[i][0])
-            # new = len(due)
-            # now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            # due = c.execute("SELECT rowid,due FROM tasks WHERE due BETWEEN '" + today + " 00:00:00' AND '" + today + " 23:59:59'").fetchall()
-            # # print(old,"/",new)
-            # # print(executed)
-            # print(now + " : " + due[new-1][1] + " " + str(new))
-            # # if new>old:
-            # #     for j in range(new-old):
-            # #         executed = np.append(executed, 1)
-            # #         break
-            # #     Startup()
-            time.sleep(0.5)
+        try:
+            if due[i][1] == now:
+                    print("Due!!!")
+                    executed[0][i]=0
+                    main(due[i][0])
+                    time.sleep(0.5)
+                    Startup()
+            else:
+                new = len(due)
+                now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                due = c.execute("SELECT rowid,due FROM tasks WHERE due BETWEEN '" + today +" 00:00:00' AND '"+ today +" 23:59:59' AND pending = 1").fetchall()
+                print(now + " : " + due[new-1][1] + " " + str(new))
+                if new>old:
+                    for j in range(new-old):
+                        executed = np.append(executed, 1)
+                        break
+                    Startup()
+                if new<old:
+                    print("u got me")
+                time.sleep(0.5)
+        except:
             Startup()
-        else:
-            new = len(due)
-            now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            due = c.execute("SELECT rowid,due FROM tasks WHERE due BETWEEN '" + today +" 00:00:00' AND '"+ today +" 23:59:59'").fetchall()
-            # print(old,"/",new)
-            # print(executed)
-            print(now + " : " + due[new-1][1] + " " + str(new))
-            if new>old:
-                for j in range(new-old):
-                    executed = np.append(executed, 1)
-                    break
-                Startup()
-            time.sleep(0.5)
-        # else:
-        #     Startup()
         time.sleep(0.5)
-        # print("Still in is due")
     
+def add_to_startup():
+    pass
+
 def Startup():
     i=0
     import numpy as np
-    import logging
-    logging.basicConfig(filename='test.log', level=logging.INFO, format='%(message)s')
     conn = sqlite3.connect(os.path.join(curr_path,'Databases\Prioritize.db'))
     c = conn.cursor()
     
     c.execute("SELECT * FROM tasks ORDER BY due DESC LIMIT 1")
     today = datetime.datetime.now().strftime("%Y-%m-%d")
-    due = c.execute("SELECT rowid,due FROM tasks WHERE due BETWEEN '" + today +" 00:00:00' AND '" + today + " 23:59:59'").fetchall()
+    due = c.execute("SELECT rowid,due FROM tasks WHERE due BETWEEN '" + today +" 00:00:00' AND '" + today + " 23:59:59' AND pending = 1" ).fetchall()
     now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")        
     executed = np.ones((1,len(due)))
     executed = has_executed(executed, due)
@@ -216,19 +183,16 @@ def Startup():
     old = len(due)
     if i==0 and old==0:
         while 1:
-            due = c.execute("SELECT rowid,due FROM tasks WHERE due BETWEEN '" + today + " 00:00:00' AND '" + today + " 23:59:59'").fetchall()
+            due = c.execute("SELECT rowid,due FROM tasks WHERE due BETWEEN '" + today + " 00:00:00' AND '" + today + " 23:59:59' AND pending = 1").fetchall()
             print("assds", due)
             time.sleep(0.5)
             if len(due)!=0:
                 Startup()
     else:
         for i in range(len(due)):
-                # print(i,len(due),executed[0][i])
             if i<=old:
                 if has_passed(due[i][1]) and executed[0][i]!=0:
                     print(due[i][1], "is passed")
-                    logging.info(due[i][1] + "|" + str(due[i][0]))
-                    logging.shutdown()
                     executed[0][i]=0
                     print(executed)
                     main(due[i][0])
@@ -236,14 +200,10 @@ def Startup():
                     pass
                 else:
                     is_due(executed,i,old)
-            # else:
-            #     print("k")
         while 1:
             new = len(due)
             now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            due = c.execute("SELECT rowid,due FROM tasks WHERE due BETWEEN '" + today +" 00:00:00' AND '"+ today +" 23:59:59'").fetchall()
-            # print(old,"/",new)
-            # print(executed)
+            due = c.execute("SELECT rowid,due FROM tasks WHERE due BETWEEN '" + today +" 00:00:00' AND '"+ today +" 23:59:59' AND pending = 1").fetchall()
             print(now + " : " + due[new-1][1] + " " + str(new))
             if new>old:
                 for j in range(new-old):
@@ -252,44 +212,11 @@ def Startup():
                 Startup()
             time.sleep(0.5)
 
-#     i=0
-#     while 1:
-#         conn = sqlite3.connect(os.path.join(curr_path,'Databases\Prioritize.db'))
-#         c = conn.cursor()
-        
-#         c.execute("SELECT * FROM tasks ORDER BY due DESC LIMIT 1")
-#         today = datetime.datetime.now().strftime("%Y-%m-%d")
-#         due = c.execute("SELECT rowid,due FROM tasks WHERE due BETWEEN '"+today+" 00:00:00' AND '"+today+" 23:59:59'").fetchall()
-#         now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")        
-#         print(now + " : " + due[i][1])
-#         if has_passed(due[i][1]):
-#             print(due[i][1], "is passed")
-#             i+=1
-            
-#         if due[i][1] == now:
-#             print("Due!!!")
-#             i+=1
-#             main()
-#         if i>=len(due): 
-#             Secondary()
-#         time.sleep(0.5)
+    if os.path.isfile('C:\\Users\\%s\\Desktop\\PROGRAMMING\\Prioritize\\test.log' % USER_NAME):
+        pass
+    else:
+        add_to_startup()
 
-# def Secondary():
-#     while 1:
-#         conn = sqlite3.connect(os.path.join(curr_path,'Databases\Prioritize.db'))
-#         c = conn.cursor()
-        
-#         c.execute("SELECT * FROM tasks ORDER BY due DESC LIMIT 1")
-#         # today = datetime.datetime.now().strftime("%Y-%m-%d")
-#         due = c.execute("SELECT due FROM tasks ORDER BY due DESC LIMIT 1").fetchone()
-#         now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-#         print(now + " : " + due[0])
-#         if due[0] == now:
-#             print("Due!!!")
-#             main()
-#         # if i<len(due):           
-#         #     Startup()
-#         time.sleep(0.5)
 
 if __name__ == '__main__':
     Startup()
