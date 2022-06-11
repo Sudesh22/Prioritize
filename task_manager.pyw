@@ -4,6 +4,8 @@ from PyQt5.uic import loadUi
 from PyQt5 import QtWidgets, QtCore
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import QMainWindow, QApplication, QPushButton
+import numpy as np
+import logging
 
 USER_NAME = getpass.getuser()
 if getattr(sys, 'frozen', False):
@@ -35,13 +37,10 @@ class First(QMainWindow):
             c.execute("UPDATE tasks SET due = :due WHERE oid = :oid", {'due': date,'oid': id})
             conn.commit()
             conn.close()
-            for i in range(0,s_w, 2):
-                QApplication.processEvents()
-                time.sleep(0.01)
-                self.setGeometry(new + i, height - s_h, s_w, s_h)
+            disappear(0)
             Startup()
 
-        def func2():
+        def Completed():
             print("Completed button pressed")
             conn = sqlite3.connect(os.path.join(curr_path,'Databases\Prioritize.db'))
             c = conn.cursor()
@@ -49,10 +48,8 @@ class First(QMainWindow):
             c.execute("UPDATE tasks SET pending = :pending WHERE oid = :oid", {'pending': 0,'oid': id})
             conn.commit()
             conn.close()
-            for i in range(0,s_w, 2):
-                QApplication.processEvents()
-                time.sleep(0.01)
-                self.setGeometry(new + i, height - s_h, s_w, s_h)
+            log_data(due,id)
+            disappear(0)
             Startup()
 
         def get_title(id):
@@ -61,11 +58,29 @@ class First(QMainWindow):
             title = c.execute("SELECT task_name FROM tasks WHERE rowid = (?)", (id,)).fetchone()
             return title[0]
 
-        def disappear():
-            for i in range(0,s_w, 2):
-                QApplication.processEvents()
-                time.sleep(0.01)
-                self.setGeometry(new + i, height - s_h, s_w, s_h)
+        def disappear(param):
+            if param==1:
+                from datetime import timedelta
+                print("Auto snoozing functionality")
+                conn = sqlite3.connect(os.path.join(curr_path,'Databases\Prioritize.db'))
+                c = conn.cursor()
+                due = c.execute("SELECT due FROM tasks WHERE rowid = (?)", (id,)).fetchone()
+                date = datetime.datetime.strptime(due[0], '%Y-%m-%d %H:%M:%S')
+                date = date + timedelta(minutes=2)
+                date = date.strftime("%Y-%m-%d %H:%M:%S")
+                print(date)
+                c.execute("UPDATE tasks SET due = :due WHERE oid = :oid", {'due': date,'oid': id})
+                conn.commit()
+                conn.close()
+                for i in range(0,s_w, 2):
+                    QApplication.processEvents()
+                    time.sleep(0.01)
+                    self.setGeometry(new + i, height - s_h, s_w, s_h)
+            else:
+                for i in range(0,s_w, 2):
+                    QApplication.processEvents()
+                    time.sleep(0.01)
+                    self.setGeometry(new + i, height - s_h, s_w, s_h)
             Startup()
 
         def appear(self):
@@ -80,17 +95,14 @@ class First(QMainWindow):
                 QApplication.processEvents()
                 time.sleep(0.01)
 
-            for i in range(0,s_w, 2):
-                QApplication.processEvents()
-                time.sleep(0.01)
-                self.setGeometry(new + i, height - s_h, s_w, s_h)
+            disappear(1)
 
         title = str(get_title(id))
         self.tname.setText(title)
         self.completed.setStyleSheet("QPushButton{font: 9pt 'SansSerif';color: black;text-align: center;background-color:rgb(255, 255, 255); border-radius: 15px;}QPushButton:hover{border : 2px solid black;}")
         self.snoozed.setStyleSheet("QPushButton{font: 9pt 'SansSerif';color: black;text-align: center;background-color:rgb(255, 255, 255); border-radius: 15px;}QPushButton:hover{border : 2px solid black;}")
-        self.close.clicked.connect(disappear)
-        self.completed.clicked.connect(func2)
+        self.close.clicked.connect(lambda: disappear(1))
+        self.completed.clicked.connect(Completed)
         self.snoozed.clicked.connect(Snooze)
         self.appName.setText("Prioritize")
         self.desktop = QApplication.desktop()
@@ -113,16 +125,16 @@ def has_executed(executed, due):
     j=0
     print(due)
     with open("test.log") as fp:
-            for line in fp:
-                if j<len(due):
-                    print("has_exec line:",line)
-                    print("has_exec",due[j][1],line[11:30])
-                    if line.startswith(due[j][1], 11, 30):
-                        n+=1
-                        j+=1
-                        print("has_exec","n:",n,"j:",j)
-            for i in range(n):
-                executed[0][i] = 0
+        for line in fp:
+            if j<len(due):
+                print("has_exec line:",line)
+                print("has_exec",due[j][1],line[11:30])
+                if line.startswith(due[j][1], 11, 30):
+                    n+=1
+                    j+=1
+                    print("has_exec","n:",n,"j:",j)
+        for i in range(n):
+            executed[0][i] = 0
     print("n:",n,"exec"+str(executed))
     return executed
 
@@ -132,7 +144,7 @@ def has_passed(date):
     return date < datetime.datetime.now()
 
 def is_due(executed,i,old):
-    import numpy as np
+    
     while 1:
         conn = sqlite3.connect(os.path.join(curr_path,'Databases\Prioritize.db'))
         c = conn.cursor()
@@ -167,9 +179,15 @@ def is_due(executed,i,old):
 def add_to_startup():
     pass
 
+def log_data(due,id):
+    logging.basicConfig(filename='test.log', level=logging.INFO, format='%(message)s')
+    print("due:",due)
+    print("id:",id)
+    logging.info(str(due[0]) + "|" + str(id))
+    logging.shutdown()
+
 def Startup():
     i=0
-    import numpy as np
     conn = sqlite3.connect(os.path.join(curr_path,'Databases\Prioritize.db'))
     c = conn.cursor()
     
@@ -193,6 +211,8 @@ def Startup():
             if i<=old:
                 if has_passed(due[i][1]) and executed[0][i]!=0:
                     print(due[i][1], "is passed")
+
+                    
                     executed[0][i]=0
                     print(executed)
                     main(due[i][0])
