@@ -66,7 +66,7 @@ def print_data(name):
     conn = sqlite3.connect('Prioritize.db')
     c = conn.cursor()
     c.execute("SELECT rowid, * FROM " + name)
-    items = c.fetchall()
+    items = c.fetchall()    
     # print(items[1][1])
     for item in items:
         # for i in enumerate(item, start=1):
